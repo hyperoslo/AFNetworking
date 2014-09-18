@@ -104,28 +104,47 @@
 
 #pragma mark -
 
-- (NSURLSessionDataTask *)GET:(NSString *)URLString
-                   parameters:(id)parameters
-                      success:(void (^)(NSURLSessionDataTask *task, id responseObject))success
-                      failure:(void (^)(NSURLSessionDataTask *task, NSError *error))failure
+- (void)GET:(NSString *)URLString
+ parameters:(id)parameters
+    success:(void (^)(NSURLSessionDataTask *task, id responseObject))success
+    failure:(void (^)(NSURLSessionDataTask *task, NSError *error))failure
 {
     NSMutableURLRequest *request = [self.requestSerializer requestWithMethod:@"GET" URLString:[[NSURL URLWithString:URLString relativeToURL:self.baseURL] absoluteString] parameters:parameters error:nil];
 
-    __block NSURLSessionDataTask *task = [self dataTaskWithRequest:request completionHandler:^(NSURLResponse * __unused response, id responseObject, NSError *error) {
-        if (error) {
-            if (failure) {
-                failure(task, error);
-            }
-        } else {
-            if (success) {
-                success(task, responseObject);
-            }
+    [self request:request exists:^(BOOL exists) {
+        if (!exists) {
+            __block NSURLSessionDataTask *task = [self dataTaskWithRequest:request completionHandler:^(NSURLResponse * __unused response, id responseObject, NSError *error) {
+                if (error) {
+                    if (failure) {
+                        failure(task, error);
+                    }
+                } else {
+                    if (success) {
+                        success(task, responseObject);
+                    }
+                }
+            }];
+
+            [task resume];
         }
     }];
+}
 
-    [task resume];
+- (void)request:(NSMutableURLRequest *)request exists:(void (^)(BOOL exists))exists
+{
+    __block BOOL found = NO;
+    [self.session getTasksWithCompletionHandler:^(NSArray * __unused dataTasks, NSArray * __unused uploadTasks, NSArray *downloadTasks) {
+        for (NSURLSessionDataTask *existingTask in downloadTasks) {
+            if ([[existingTask.originalRequest.URL absoluteString] isEqualToString:[request.URL absoluteString]]) {
+                found = YES;
+                break;
+            }
+        }
 
-    return task;
+        if (exists) {
+            exists(found);
+        }
+    }];
 }
 
 - (NSURLSessionDataTask *)HEAD:(NSString *)URLString
