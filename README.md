@@ -2,7 +2,7 @@
 
 ### The only difference between this and it's parent fork was that we ignore GET requests if a similar one is on progress.
 
-### Use `https://github.com/NSElvis/AFHTTPSessionManager-AFUniqueGET` instead
+### Use [AFHTTPSessionManager-AFUniqueGET](https://github.com/NSElvis/AFHTTPSessionManager-AFUniqueGET) instead
 
 ## Credits
 
