@@ -1,6 +1,8 @@
-# The only difference between this and it's parent fork is that we ignore GET requests if a similar one is on progress.
+# DEPRECATED
 
-It's pretty sweet.
+### The only difference between this and it's parent fork was that we ignore GET requests if a similar one is on progress.
+
+### Use `https://github.com/NSElvis/AFHTTPSessionManager-AFUniqueGET` instead
 
 ## Credits
 
